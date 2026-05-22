@@ -189,7 +189,37 @@ with right:
         'MonthlyCharges':[monthlycharges],
         'TotalCharges':[totalcharges]
     })
+input_data = pd.DataFrame(0, index=[0], columns=model.feature_names_in_)
 
+# Numeric Features
+input_data['tenure'] = tenure
+input_data['MonthlyCharges'] = monthlycharges
+input_data['TotalCharges'] = totalcharges
+
+# Contract
+if contract == "Month-to-month":
+    input_data['Contract_Month-to-month'] = 1
+elif contract == "One year":
+    input_data['Contract_One year'] = 1
+else:
+    input_data['Contract_Two year'] = 1
+
+# Internet Service
+if internetservice == "DSL":
+    input_data['InternetService_DSL'] = 1
+elif internetservice == "Fiber optic":
+    input_data['InternetService_Fiber optic'] = 1
+else:
+    input_data['InternetService_No'] = 1
+
+# Paperless Billing
+if paperlessbilling == "Yes":
+    input_data['PaperlessBilling_Yes'] = 1
+else:
+    input_data['PaperlessBilling_No'] = 1
+
+    
+    st.write("")
     if st.button("⚡ Predict Churn"):
 
         try:
@@ -221,15 +251,84 @@ with right:
                 </div>
                 """, unsafe_allow_html=True)
 
-        except:
-            st.error("Feature mismatch with trained model.")
-
+        
+        except Exception as e:
+            st.error(e)
     st.markdown('</div>', unsafe_allow_html=True)
 
 # ================= FOOTER =================
-st.write("")
-st.markdown("""
-<center style='color:#64748B'>
-Made with ❤️ using Streamlit + AI
-</center>
-""", unsafe_allow_html=True)
+with right:
+
+    st.markdown('<div class="glass">', unsafe_allow_html=True)
+
+    st.subheader("🚀 AI Prediction Engine")
+
+    input_data = pd.DataFrame(0, index=[0], columns=model.feature_names_in_)
+
+    # Numeric Features
+    input_data['tenure'] = tenure
+    input_data['MonthlyCharges'] = monthlycharges
+    input_data['TotalCharges'] = totalcharges
+
+    # Contract
+    if contract == "Month-to-month":
+        input_data['Contract_Month-to-month'] = 1
+    elif contract == "One year":
+        input_data['Contract_One year'] = 1
+    else:
+        input_data['Contract_Two year'] = 1
+
+    # Internet Service
+    if internetservice == "DSL":
+        input_data['InternetService_DSL'] = 1
+    elif internetservice == "Fiber optic":
+        input_data['InternetService_Fiber optic'] = 1
+    else:
+        input_data['InternetService_No'] = 1
+
+    # Paperless Billing
+    if paperlessbilling == "Yes":
+        input_data['PaperlessBilling_Yes'] = 1
+    else:
+        input_data['PaperlessBilling_No'] = 1
+
+    if st.button("⚡ Predict Churn"):
+
+        try:
+
+            prediction = model.predict(input_data)[0]
+
+            probability = model.predict_proba(input_data)[0][1]
+
+            st.progress(float(probability))
+
+            st.metric(
+                "Churn Probability",
+                f"{probability*100:.2f}%"
+            )
+
+            st.write("")
+
+            if prediction == 1:
+
+                st.markdown(f"""
+                <div class="danger-box">
+                🚨 HIGH CHURN RISK<br>
+                {probability*100:.1f}% Probability
+                </div>
+                """, unsafe_allow_html=True)
+
+            else:
+
+                st.markdown(f"""
+                <div class="success-box">
+                ✅ LOYAL CUSTOMER<br>
+                {(1-probability)*100:.1f}% Retention Confidence
+                </div>
+                """, unsafe_allow_html=True)
+
+        except Exception as e:
+
+            st.error(e)
+
+    st.markdown('</div>', unsafe_allow_html=True)
